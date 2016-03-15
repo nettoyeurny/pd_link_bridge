@@ -1,0 +1,71 @@
+#N canvas 698 36 424 805 10;
+#X msg 291 521 tempo \$1;
+#X msg 58 523 resolution \$1;
+#X msg 167 544 reset \$1 \$2;
+#X obj 167 523 pack f f;
+#X text 27 45 abl_link~ is a Pd external for iOS that integrates Ableton
+Link into libpd. To support patching with abl_link~ outside of iOS
+\, there is an abstraction \, also called abl_link~ \, that mimics
+the behavior of the external (minus the actual Link functionality \,
+of course).;
+#X floatatom 264 605 5 0 0 1 beat_time - -, f 5;
+#X floatatom 227 629 5 0 0 1 phase - -, f 5;
+#X obj 190 651 bng 15 250 50 0 empty empty downbeat 17 7 0 10 -262144
+-1 -1;
+#X obj 153 680 bng 15 250 50 0 empty empty pulse 17 7 0 10 -262144
+-1 -1;
+#X msg 39 656 \; pd dsp 1;
+#X text 27 118 abl_link~ has four outlets \, which emit a bang at a
+given rate (e.g. \, two bangs per beat) and a bang at the beginning
+of each quantum \, as well as the current phase and beat time at each
+dsp tick.;
+#X obj 58 503 nbx 5 14 1 8 0 1 empty empty resolution 0 -8 0 10 -262144
+-1 -1 1 256;
+#X obj 218 502 nbx 5 14 1 16 0 1 empty empty quantum 0 -8 0 10 -262144
+-1 -1 4 256;
+#X obj 292 501 nbx 5 14 20 240 0 1 empty empty tempo 0 -8 0 10 -262144
+-1 -1 120 256;
+#X obj 153 502 nbx 5 14 -1e+37 1e+37 0 1 empty empty beat 0 -8 0 10
+-262144 -1 -1 0 256;
+#X obj 153 580 abl_link~ 1 0 4 120;
+#X text 27 178 abl_link~ responds to three methods \, for setting the
+resolution of the first outlet (in bangs per beat) \, the tempo (in
+beats per minute) \, and for resetting the beat time and quantum. Note
+that the reset method will result in a beat time that's less than the
+requested value because that's how the corresponding Link function
+behaves.;
+#X text 27 24 abl_link~: Ableton Link external/abstraction;
+#X text 27 350 Note that the abstraction is just a quick hack to create
+a reasonable patching experience with abl_link~ \; it is not trying
+to be complete or even entirely correct. In particular \, apart from
+the absence of actual Link functionality \, the tempo message will
+reset the beat time (because it was easier to implement that way) \,
+and the downbeat outlet may not fire if the quantum is one or less
+(same reason).;
+#X text 27 264 The creation arguments \, all optional \, specify the
+resolution (default 1) and the initial beat time (default 0) \, as
+well as the quantum and tempo \, which will default to the current
+Link session settings. If Link is already connected when the abl_link~
+object is created \, the tempo parameter will be ignored.;
+#X obj 262 716 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X floatatom 343 758 5 0 0 1 tempo - -, f 5;
+#X floatatom 262 758 5 0 0 1 quantum - -, f 5;
+#X obj 262 736 abl_link_state;
+#X text 31 719 abl_link_state is an external (with a matching abstraction)
+that emits the current quantum and session tempo of Link.;
+#X connect 0 0 15 0;
+#X connect 1 0 15 0;
+#X connect 2 0 15 0;
+#X connect 3 0 2 0;
+#X connect 11 0 1 0;
+#X connect 12 0 3 1;
+#X connect 13 0 0 0;
+#X connect 14 0 3 0;
+#X connect 15 0 8 0;
+#X connect 15 1 7 0;
+#X connect 15 2 6 0;
+#X connect 15 3 5 0;
+#X connect 20 0 23 0;
+#X connect 23 0 22 0;
+#X connect 23 1 21 0;
