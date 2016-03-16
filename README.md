@@ -8,7 +8,7 @@ Ableton Link integration for Pd.
 * Add `pd_link_bridge/**` to your header search path.
 * Add `pd_link_bridge/ios/PdLinkAudioUnit.{h,m}` to the sources of your project.
 * Add the Link preference pane to your user interface (e.g., by cargo-culting the relevant bits of the LinkHut sample project).
-* Finally, create a Link instance, a PdLinkAudioUnit instance, and a PdAudioController instance:
+* Create a Link instance, a PdLinkAudioUnit instance, and a PdAudioController instance:
 
 ```
 ABLLinkRef linkRef = ABLLinkNew(120, 4);
