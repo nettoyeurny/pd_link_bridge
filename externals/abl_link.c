@@ -59,22 +59,23 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
         x->tempo = 0;
     }
     double prev_beat_time = x->curr_beat_time;
-    if (x->quantum > 0) {
-        ABLLinkSetQuantum(libpdLinkRef, x->quantum);
-        x->quantum = 0;
-        x->curr_beat_time = ABLLinkResetBeatTime(libpdLinkRef, x->curr_beat_time, libpd_curr_time);
-        prev_beat_time = x->curr_beat_time - 1e-6;
-    } else {
-        // Note that fmax is not redundant here because beat time can occasionally go backwards.
-        x->curr_beat_time = fmax(prev_beat_time,
-                                 ABLLinkBeatTimeAtHostTime(libpdLinkRef, libpd_curr_time));
+    double beat_time = ABLLinkBeatTimeAtHostTime(libpdLinkRef, libpd_curr_time);
+    double curr_phase = ABLLinkPhase(libpdLinkRef, beat_time, x->quantum);
+    if (x->quantum > 0)
+    {
+      // Subtract half a quantum so that beat time goes backwards if
+      // necessary to reach the closest value with the desired phase
+      double beat_time_base = beat_time - (x->quantum / 2);
+      double beat_time_phase = fmod(beat_time_base, x->quantum);
+      beat_time = beat_time_base + fmod(curr_phase - beat_time_phase + x->quantum, x->quantum);
     }
+
+    x->curr_beat_time = beat_time;
     outlet_float(x->beat_out, x->curr_beat_time);
-    double quantum = ABLLinkGetQuantum(libpdLinkRef);
-    double prev_phase = ABLLinkPhase(libpdLinkRef, prev_beat_time, quantum);
-    double curr_phase = ABLLinkPhase(libpdLinkRef, x->curr_beat_time, quantum);
     outlet_float(x->phase_out, curr_phase);
-    bool downbeat = prev_phase - curr_phase > quantum / 2;
+
+    double prev_phase = ABLLinkPhase(libpdLinkRef, prev_beat_time, x->quantum);
+    bool downbeat = prev_phase - curr_phase > x->quantum / 2;
     if (downbeat) {
         outlet_bang(x->downbeat_out);
     }

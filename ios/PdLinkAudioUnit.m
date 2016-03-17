@@ -47,6 +47,7 @@ static int kPdBlockSize;
 - (id)initWithLinkRef:(ABLLinkRef)linkRef {
     self = [super init];
     linkRef_ = linkRef;
+    ABLLinkSetQuantum(linkRef_, 0);
     abl_link_set_link_ref(linkRef);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleRouteChange:) name:AVAudioSessionRouteChangeNotification object:[AVAudioSession sharedInstance]];
     return self;
