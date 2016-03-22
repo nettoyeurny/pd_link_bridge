@@ -2,8 +2,6 @@
  *  For information on usage and redistribution, and for a DISCLAIMER OF ALL
  *  WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  *
- * See https://github.com/libpd/libpd/wiki for documentation.
- *
  */
 
 #include "abl_link.h"
@@ -61,9 +59,9 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
         x->tempo = 0;
     }
     double prev_beat_time = x->curr_beat_time;
-    if (x->quantum > 0) {
+    if (x->quantum >= 0) {
         ABLLinkSetQuantum(libpdLinkRef, x->quantum);
-        x->quantum = 0;
+        x->quantum = -1;
         x->curr_beat_time = ABLLinkResetBeatTime(libpdLinkRef, x->curr_beat_time, libpd_curr_time);
         prev_beat_time = x->curr_beat_time - 1e-6;
     } else {
