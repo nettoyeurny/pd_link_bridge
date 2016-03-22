@@ -34,7 +34,6 @@ typedef struct _abl_link_tilde {
     t_object obj;
     t_clock *clock;
     t_outlet *step_out;
-    t_outlet *downbeat_out;
     t_outlet *phase_out;
     t_outlet *beat_out;
     double steps_per_beat;
@@ -59,29 +58,27 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
         x->tempo = 0;
     }
     double prev_beat_time = x->curr_beat_time;
+    double curr_beat_time;
     if (x->quantum >= 0) {
         ABLLinkSetQuantum(libpdLinkRef, x->quantum);
         x->quantum = -1;
-        x->curr_beat_time = ABLLinkResetBeatTime(libpdLinkRef, x->curr_beat_time, libpd_curr_time);
-        prev_beat_time = x->curr_beat_time - 1e-6;
+        curr_beat_time = ABLLinkResetBeatTime(libpdLinkRef, x->curr_beat_time, libpd_curr_time);
+        prev_beat_time = curr_beat_time - 1e-6;
     } else {
-        // Note that fmax is not redundant here because beat time can occasionally go backwards.
-        x->curr_beat_time = fmax(prev_beat_time,
-                                 ABLLinkBeatTimeAtHostTime(libpdLinkRef, libpd_curr_time));
+        curr_beat_time = ABLLinkBeatTimeAtHostTime(libpdLinkRef, libpd_curr_time));
     }
-    outlet_float(x->beat_out, x->curr_beat_time);
+    outlet_float(x->beat_out, curr_beat_time);
     double quantum = ABLLinkGetQuantum(libpdLinkRef);
-    double prev_phase = ABLLinkPhase(libpdLinkRef, prev_beat_time, quantum);
-    double curr_phase = ABLLinkPhase(libpdLinkRef, x->curr_beat_time, quantum);
+    double curr_phase = ABLLinkPhase(libpdLinkRef, curr_beat_time, quantum);
     outlet_float(x->phase_out, curr_phase);
-    bool downbeat = prev_phase - curr_phase > quantum / 2;
-    if (downbeat) {
-        outlet_bang(x->downbeat_out);
-    }
-    double prev_step = prev_phase * x->steps_per_beat;
-    double curr_step = curr_phase * x->steps_per_beat;
-    if (downbeat || floor(prev_step) != floor(curr_step)) {
-        outlet_bang(x->step_out);
+    if (curr_beat_time > prev_beat_time) {
+        x->curr_beat_time = curr_beat_time;
+        double prev_phase = ABLLinkPhase(libpdLinkRef, prev_beat_time, quantum);
+        double prev_step = floor(prev_phase * x->steps_per_beat);
+        double curr_step = floor(curr_phase * x->steps_per_beat);
+        if (prev_phase - curr_phase > quantum / 2 || prev_step != curr_step) {
+            outlet_float(x->step_out, curr_step);
+        }
     }
 }
 
@@ -111,8 +108,7 @@ static void abl_link_tilde_reset(t_abl_link_tilde *x, t_symbol *s, int argc, t_a
 static void *abl_link_tilde_new(t_symbol *s, int argc, t_atom *argv) {
     t_abl_link_tilde *x = (t_abl_link_tilde *)pd_new(abl_link_tilde_class);
     x->clock = clock_new(x, (t_method)abl_link_tilde_tick);
-    x->step_out = outlet_new(&x->obj, &s_bang);
-    x->downbeat_out = outlet_new(&x->obj, &s_bang);
+    x->step_out = outlet_new(&x->obj, &s_float);
     x->phase_out = outlet_new(&x->obj, &s_float);
     x->beat_out = outlet_new(&x->obj, &s_float);
     x->steps_per_beat = 1;
