@@ -77,8 +77,8 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
         if (prev_phase - curr_phase > quantum / 2 || prev_step != curr_step) {
             outlet_float(x->step_out, curr_step);
         }
-        x->prev_beat_time = curr_beat_time;
     }
+    x->prev_beat_time = curr_beat_time;
 }
 
 static void abl_link_tilde_set_tempo(t_abl_link_tilde *x, t_floatarg bpm) {
