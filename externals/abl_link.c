@@ -65,7 +65,7 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
         curr_beat_time = ABLLinkResetBeatTime(libpdLinkRef, x->curr_beat_time, libpd_curr_time);
         prev_beat_time = curr_beat_time - 1e-6;
     } else {
-        curr_beat_time = ABLLinkBeatTimeAtHostTime(libpdLinkRef, libpd_curr_time));
+        curr_beat_time = ABLLinkBeatTimeAtHostTime(libpdLinkRef, libpd_curr_time);
     }
     outlet_float(x->beat_out, curr_beat_time);
     double quantum = ABLLinkGetQuantum(libpdLinkRef);
