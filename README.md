@@ -17,4 +17,5 @@ PdAudioContoller pd = [[PdAudioController alloc] initWithAudioUnit:pdAudioUnit];
 ```
 
 * Create a Pd patch using the Link external, `abl_link~`. In order to create patches on a desktop computer (where the actual link external is not (yet) available), you can use the mockups in `pd_link_bridge/abstractions`.
-
+* Make sure to check out the help patch of `abl_link~`.
+* 
