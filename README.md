@@ -1,5 +1,5 @@
 # pd_link_bridge
-Ableton Link integration for Pd.
+Ableton Link integration for Pd. A sample app is [here](https://github.com/nettoyeurny/libpd_link_sample).
 
 ## Getting started
 
