@@ -1,4 +1,4 @@
-#N canvas 272 23 419 837 10;
+#N canvas 272 23 417 765 10;
 #X msg 296 573 tempo \$1;
 #X msg 63 575 resolution \$1;
 #X msg 172 596 reset \$1 \$2;
@@ -21,13 +21,6 @@ of course).;
 -262144 -1 -1 0 256;
 #X obj 158 632 abl_link~ 1 0 4 120;
 #X text 25 18 abl_link~: Ableton Link external/abstraction;
-#X obj 265 715 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
-#X floatatom 346 757 5 0 0 1 tempo - -, f 5;
-#X floatatom 265 757 5 0 0 1 quantum - -, f 5;
-#X obj 265 735 abl_link_state;
-#X text 35 786 abl_link_state is an external (with a matching abstraction)
-that emits the current quantum and session tempo of Link.;
 #X floatatom 158 704 5 0 0 1 step - -, f 5;
 #X text 25 417 Note that the abstraction is just a quick hack to create
 a reasonable patching experience with abl_link~ \; it is not trying
@@ -64,9 +57,6 @@ time going backwards.;
 #X connect 9 0 3 1;
 #X connect 10 0 0 0;
 #X connect 11 0 3 0;
-#X connect 12 0 19 0;
+#X connect 12 0 14 0;
 #X connect 12 1 6 0;
 #X connect 12 2 5 0;
-#X connect 14 0 17 0;
-#X connect 17 0 16 0;
-#X connect 17 1 15 0;

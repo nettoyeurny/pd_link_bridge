@@ -10,8 +10,6 @@
 #include "ABLLink.h"
 
 void abl_link_tilde_setup(void);
-void abl_link_state_setup(void);
-void abl_link_setup(void);
 void abl_link_set_link_ref(ABLLinkRef ref);
 void abl_link_set_time(uint64_t curr_time);
 

@@ -33,7 +33,7 @@ static int kPdBlockSize;
 + (void)initialize {
     // Make sure to initialize PdBase before we do anything else.
     kPdBlockSize = [PdBase getBlockSize];
-    abl_link_setup();
+    abl_link_tilde_setup();
 }
 
 - (void)handleRouteChange:(NSNotification *)notification {

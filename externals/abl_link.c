@@ -15,11 +15,6 @@ static ABLLinkRef libpdLinkRef = NULL;
 
 static uint64_t libpd_curr_time;
 
-void abl_link_setup(void) {
-    abl_link_tilde_setup();
-    abl_link_state_setup();
-}
-
 void abl_link_set_link_ref(ABLLinkRef ref) {
     libpdLinkRef = ref;
 }
@@ -53,32 +48,25 @@ static void abl_link_tilde_dsp(t_abl_link_tilde *x, t_signal **sp) {
 }
 
 static void abl_link_tilde_tick(t_abl_link_tilde *x) {
+    ABLLinkTimelineRef timeline = ABLLinkCaptureAudioTimeline(libpdLinkRef);
     if (x->tempo > 0) {
-        ABLLinkProposeTempo(libpdLinkRef, x->tempo, libpd_curr_time);
+        ABLLinkSetTempo(timeline, x->tempo, libpd_curr_time);
         x->tempo = 0;
     }
-    double curr_beat_time;
-    if (x->quantum >= 0) {
-        ABLLinkSetQuantum(libpdLinkRef, x->quantum);
-        x->quantum = -1;
-        curr_beat_time = ABLLinkResetBeatTime(libpdLinkRef, x->prev_beat_time, libpd_curr_time);
-        x->prev_beat_time = curr_beat_time - 1e-6;
-    } else {
-        curr_beat_time = ABLLinkBeatTimeAtHostTime(libpdLinkRef, libpd_curr_time);
-    }
+    double curr_beat_time = ABLLinkBeatAtTime(timeline, libpd_curr_time, x->quantum);
     outlet_float(x->beat_out, curr_beat_time);
-    double quantum = ABLLinkGetQuantum(libpdLinkRef);
-    double curr_phase = ABLLinkPhase(libpdLinkRef, curr_beat_time, quantum);
+    double curr_phase = ABLLinkPhaseAtTime(timeline, curr_beat_time, x->quantum);
     outlet_float(x->phase_out, curr_phase);
     if (curr_beat_time > x->prev_beat_time) {
-        double prev_phase = ABLLinkPhase(libpdLinkRef, x->prev_beat_time, quantum);
+        double prev_phase = ABLLinkPhaseAtTime(timeline, x->prev_beat_time, x->quantum);
         double prev_step = floor(prev_phase * x->steps_per_beat);
         double curr_step = floor(curr_phase * x->steps_per_beat);
-        if (prev_phase - curr_phase > quantum / 2 || prev_step != curr_step) {
+        if (prev_phase - curr_phase > x->quantum / 2 || prev_step != curr_step) {
             outlet_float(x->step_out, curr_step);
         }
     }
     x->prev_beat_time = curr_beat_time;
+    ABLLinkCommitAudioTimeline(libpdLinkRef, timeline);
 }
 
 static void abl_link_tilde_set_tempo(t_abl_link_tilde *x, t_floatarg bpm) {
@@ -91,7 +79,6 @@ static void abl_link_tilde_set_resolution(t_abl_link_tilde *x, t_floatarg steps_
 
 static void abl_link_tilde_reset(t_abl_link_tilde *x, t_symbol *s, int argc, t_atom *argv) {
     x->prev_beat_time = 0;
-    x->quantum = ABLLinkGetQuantum(libpdLinkRef);
     switch (argc) {
         default:
             post("abl_link~ reset: Unexpected number of parameters: %d", argc);
@@ -112,7 +99,7 @@ static void *abl_link_tilde_new(t_symbol *s, int argc, t_atom *argv) {
     x->beat_out = outlet_new(&x->obj, &s_float);
     x->steps_per_beat = 1;
     x->prev_beat_time = 0;
-    x->quantum = ABLLinkGetQuantum(libpdLinkRef);
+    x->quantum = 4;
     x->tempo = 0;
     switch (argc) {
         default:
@@ -154,29 +141,3 @@ void abl_link_tilde_setup(void) {
                     gensym("reset"), A_GIMME, 0);
 }
 
-static t_class *abl_link_state_class;
-
-typedef struct _abl_link_state {
-    t_object obj;
-    t_outlet *quantum_out;
-    t_outlet *tempo_out;
-} t_abl_link_state;
-
-static void abl_link_state_bang(t_abl_link_state *x) {
-    outlet_float(x->tempo_out, ABLLinkGetSessionTempo(libpdLinkRef));
-    outlet_float(x->quantum_out, ABLLinkGetQuantum(libpdLinkRef));
-}
-
-static void *abl_link_state_new(void) {
-    t_abl_link_state *x = (t_abl_link_state *)pd_new(abl_link_state_class);
-    x->quantum_out = outlet_new(&x->obj, &s_float);
-    x->tempo_out = outlet_new(&x->obj, &s_float);
-    return x;
-}
-
-void abl_link_state_setup(void) {
-    abl_link_state_class = class_new(gensym("abl_link_state"),
-                                     (t_newmethod)abl_link_state_new, 0,
-                                     sizeof(t_abl_link_state), CLASS_DEFAULT, 0);
-    class_addbang(abl_link_state_class, abl_link_state_bang);
-}
