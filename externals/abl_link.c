@@ -55,10 +55,10 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
     }
     double curr_beat_time = ABLLinkBeatAtTime(timeline, libpd_curr_time, x->quantum);
     outlet_float(x->beat_out, curr_beat_time);
-    double curr_phase = ABLLinkPhaseAtTime(timeline, curr_beat_time, x->quantum);
+    double curr_phase = fmod(curr_beat_time, x->quantum);
     outlet_float(x->phase_out, curr_phase);
     if (curr_beat_time > x->prev_beat_time) {
-        double prev_phase = ABLLinkPhaseAtTime(timeline, x->prev_beat_time, x->quantum);
+        double prev_phase = fmod(x->prev_beat_time, x->quantum);
         double prev_step = floor(prev_phase * x->steps_per_beat);
         double curr_step = floor(curr_phase * x->steps_per_beat);
         if (prev_phase - curr_phase > x->quantum / 2 || prev_step != curr_step) {
