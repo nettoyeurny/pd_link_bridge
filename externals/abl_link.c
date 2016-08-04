@@ -59,13 +59,14 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
     if (prev_tempo != x->tempo) {
         outlet_float(x->tempo_out, x->tempo);
     }
+    double curr_beat_time;
     if (x->reset_flag) {
         ABLLinkRequestBeatAtTime(timeline, x->prev_beat_time, libpd_curr_time, x->quantum);
-    }
-    double curr_beat_time = ABLLinkBeatAtTime(timeline, libpd_curr_time, x->quantum);
-    if (x->reset_flag) {
+        curr_beat_time = ABLLinkBeatAtTime(timeline, libpd_curr_time, x->quantum);
         x->prev_beat_time = curr_beat_time - 1e-6;
         x->reset_flag = 0;
+    } else {
+        curr_beat_time = ABLLinkBeatAtTime(timeline, libpd_curr_time, x->quantum);
     }
     outlet_float(x->beat_out, curr_beat_time);
     double curr_phase = fmod(curr_beat_time, x->quantum);
