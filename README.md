@@ -11,7 +11,7 @@ Ableton Link integration for Pd. A sample app is [here](https://github.com/netto
 * Create a Link instance, a PdLinkAudioUnit instance, and a PdAudioController instance:
 
 ```
-ABLLinkRef linkRef = ABLLinkNew(120, 4);
+ABLLinkRef linkRef = ABLLinkNew(120);
 PdLinkAudioUnit pdAudioUnit = [[PdLinkAudioUnit alloc] initWithLinkRef:linkRef];
 PdAudioContoller pd = [[PdAudioController alloc] initWithAudioUnit:pdAudioUnit];
 ```
