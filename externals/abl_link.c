@@ -35,6 +35,7 @@ typedef struct _abl_link_tilde {
     double prev_beat_time;
     double quantum;
     double tempo;
+    int reset_flag;
 } t_abl_link_tilde;
 
 static t_int *abl_link_tilde_perform(t_int *w) {
@@ -53,7 +54,14 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
         ABLLinkSetTempo(timeline, x->tempo, libpd_curr_time);
         x->tempo = 0;
     }
+    if (x->reset_flag) {
+        ABLLinkRequestBeatAtTime(timeline, x->prev_beat_time, libpd_curr_time, x->quantum);
+    }
     double curr_beat_time = ABLLinkBeatAtTime(timeline, libpd_curr_time, x->quantum);
+    if (x->reset_flag) {
+        x->prev_beat_time = curr_beat_time - 1e-6;
+        x->reset_flag = 0;
+    }
     outlet_float(x->beat_out, curr_beat_time);
     double curr_phase = fmod(curr_beat_time, x->quantum);
     outlet_float(x->phase_out, curr_phase);
@@ -79,6 +87,7 @@ static void abl_link_tilde_set_resolution(t_abl_link_tilde *x, t_floatarg steps_
 
 static void abl_link_tilde_reset(t_abl_link_tilde *x, t_symbol *s, int argc, t_atom *argv) {
     x->prev_beat_time = 0;
+    x->reset_flag = 1;
     switch (argc) {
         default:
             post("abl_link~ reset: Unexpected number of parameters: %d", argc);
@@ -101,6 +110,7 @@ static void *abl_link_tilde_new(t_symbol *s, int argc, t_atom *argv) {
     x->prev_beat_time = 0;
     x->quantum = 4;
     x->tempo = 0;
+    x->reset_flag = 1;
     switch (argc) {
         default:
             post("abl_link~: Unexpected number of creation args: %d", argc);
