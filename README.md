@@ -1,6 +1,8 @@
 # pd_link_bridge
 Ableton Link integration for Pd. A sample app is [here](https://github.com/nettoyeurny/libpd_link_sample).
 
+**This version uses Ableton Link 1.0.2.**
+
 ## Getting started
 
 * Set up a libpd-based Xcode project as usual.
