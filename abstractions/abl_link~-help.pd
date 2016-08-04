@@ -46,11 +46,11 @@ values from Link so that patches can implement their own handling of
 time going backwards.;
 #X floatatom 269 657 5 0 0 1 tempo - -, f 5;
 #X text 25 108 abl_link~ has four outlets \, which emit the index of
-the current step (at the beginning of each step) \, as well as the
-current phase \, beat time \, and tempo at each dsp tick. Phase and
-beat time are Link concepts. The purpose of the step feature is to
-generate events in Pd at a given rate (measured in steps per beat).
-;
+the current step (at the beginning of each step) \, the current phase
+and beat time on each DSP tick \, as well as tempo on tempo changes.
+Phase and beat time are Link concepts. The purpose of the step feature
+is to generate events in Pd at a given rate (measured in steps per
+beat).;
 #X connect 0 0 12 0;
 #X connect 1 0 12 0;
 #X connect 2 0 12 0;

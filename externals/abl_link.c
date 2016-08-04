@@ -51,11 +51,14 @@ static void abl_link_tilde_dsp(t_abl_link_tilde *x, t_signal **sp) {
 
 static void abl_link_tilde_tick(t_abl_link_tilde *x) {
     ABLLinkTimelineRef timeline = ABLLinkCaptureAudioTimeline(libpdLinkRef);
-    if (x->tempo > 0) {
-        ABLLinkSetTempo(timeline, x->tempo, libpd_curr_time);
-        x->tempo = 0;
+    if (x->tempo < 0) {
+        ABLLinkSetTempo(timeline, -x->tempo, libpd_curr_time);
     }
-    outlet_float(x->tempo_out, ABLLinkGetTempo(timeline));
+    double prev_tempo = x->tempo;
+    x->tempo = ABLLinkGetTempo(timeline);
+    if (prev_tempo != x->tempo) {
+        outlet_float(x->tempo_out, x->tempo);
+    }
     if (x->reset_flag) {
         ABLLinkRequestBeatAtTime(timeline, x->prev_beat_time, libpd_curr_time, x->quantum);
     }
@@ -80,7 +83,7 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
 }
 
 static void abl_link_tilde_set_tempo(t_abl_link_tilde *x, t_floatarg bpm) {
-    x->tempo = bpm;
+    x->tempo = -bpm;  // Negative values signal tempo changes.
 }
 
 static void abl_link_tilde_set_resolution(t_abl_link_tilde *x, t_floatarg steps_per_beat) {
@@ -121,7 +124,7 @@ static void *abl_link_tilde_new(t_symbol *s, int argc, t_atom *argv) {
             if (ABLLinkIsConnected(libpdLinkRef)) {
                 post("abl_link~: Ignoring tempo parameter because Link is connected.");
             } else {
-                x->tempo = atom_getfloat(argv + 3);
+                x->tempo = -atom_getfloat(argv + 3);  // Negative values signal tempo changes.
             }
         case 3:
             x->quantum = atom_getfloat(argv + 2);
