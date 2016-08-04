@@ -8,20 +8,20 @@ Link into libpd. To support patching with abl_link~ outside of iOS
 \, there is an abstraction \, also called abl_link~ \, that mimics
 the behavior of the external (minus the actual Link functionality \,
 of course).;
-#X floatatom 269 657 5 0 0 1 beat_time - -, f 5;
-#X floatatom 213 678 5 0 0 1 phase - -, f 5;
+#X floatatom 232 680 5 0 0 1 beat_time - -, f 5;
+#X floatatom 195 699 5 0 0 1 phase - -, f 5;
 #X msg 54 669 \; pd dsp 1;
 #X obj 63 555 nbx 5 14 1 8 0 1 empty empty resolution 0 -8 0 10 -262144
 -1 -1 1 256;
 #X obj 223 554 nbx 5 14 1 16 0 1 empty empty quantum 0 -8 0 10 -262144
 -1 -1 4 256;
 #X obj 297 553 nbx 5 14 20 240 0 1 empty empty tempo 0 -8 0 10 -262144
--1 -1 51 256;
+-1 -1 65 256;
 #X obj 158 554 nbx 5 14 -1e+37 1e+37 0 1 empty empty beat 0 -8 0 10
 -262144 -1 -1 0 256;
 #X obj 158 632 abl_link~ 1 0 4 120;
 #X text 25 18 abl_link~: Ableton Link external/abstraction;
-#X floatatom 158 704 5 0 0 1 step - -, f 5;
+#X floatatom 158 720 5 0 0 1 step - -, f 5;
 #X text 25 417 Note that the abstraction is just a quick hack to create
 a reasonable patching experience with abl_link~ \; it is not trying
 to be complete or even entirely correct. In particular \, apart from
@@ -39,16 +39,18 @@ external will perform a quantized launch on creation.;
 resolution of the step outlet (in steps per beat) \, the tempo (in
 beats per minute) \, and for resetting the beat time and quantum by
 having Link perform a quantized launch.;
-#X text 25 108 abl_link~ has three outlets \, which emit the index
-of the current step (at the beginning of each step) \, as well as the
-current phase and beat time at each dsp tick. Phase and beat time are
-Link concepts. The purpose of the step feature is to generate events
-in Pd at a given rate (measured in steps per beat).;
 #X text 25 192 Note that Link's beat time can sometimes go backwards.
 When this happens \, the step outlet will fall silent until the beat
 time moves forward again. The phase and beat outlets will output raw
 values from Link so that patches can implement their own handling of
 time going backwards.;
+#X floatatom 269 657 5 0 0 1 tempo - -, f 5;
+#X text 25 108 abl_link~ has four outlets \, which emit the index of
+the current step (at the beginning of each step) \, as well as the
+current phase \, beat time \, and tempo at each dsp tick. Phase and
+beat time are Link concepts. The purpose of the step feature is to
+generate events in Pd at a given rate (measured in steps per beat).
+;
 #X connect 0 0 12 0;
 #X connect 1 0 12 0;
 #X connect 2 0 12 0;
@@ -60,3 +62,4 @@ time going backwards.;
 #X connect 12 0 14 0;
 #X connect 12 1 6 0;
 #X connect 12 2 5 0;
+#X connect 12 3 19 0;

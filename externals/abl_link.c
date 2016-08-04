@@ -31,6 +31,7 @@ typedef struct _abl_link_tilde {
     t_outlet *step_out;
     t_outlet *phase_out;
     t_outlet *beat_out;
+    t_outlet *tempo_out;
     double steps_per_beat;
     double prev_beat_time;
     double quantum;
@@ -54,6 +55,7 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
         ABLLinkSetTempo(timeline, x->tempo, libpd_curr_time);
         x->tempo = 0;
     }
+    outlet_float(x->tempo_out, ABLLinkGetTempo(timeline));
     if (x->reset_flag) {
         ABLLinkRequestBeatAtTime(timeline, x->prev_beat_time, libpd_curr_time, x->quantum);
     }
@@ -106,6 +108,7 @@ static void *abl_link_tilde_new(t_symbol *s, int argc, t_atom *argv) {
     x->step_out = outlet_new(&x->obj, &s_float);
     x->phase_out = outlet_new(&x->obj, &s_float);
     x->beat_out = outlet_new(&x->obj, &s_float);
+    x->tempo_out = outlet_new(&x->obj, &s_float);
     x->steps_per_beat = 1;
     x->prev_beat_time = 0;
     x->quantum = 4;
