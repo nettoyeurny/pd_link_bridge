@@ -83,6 +83,11 @@ static void abl_link_tilde_tick(t_abl_link_tilde *x) {
     ABLLinkCommitAudioTimeline(libpdLinkRef, timeline);
 }
 
+static void abl_link_tilde_enable(t_abl_link_tilde *x, t_floatarg enabled) {
+    post("Warning: The iOS version of abl_link~ does not have a connect method. "
+         "Please connect using the Link GUI component.");
+}
+
 static void abl_link_tilde_set_tempo(t_abl_link_tilde *x, t_floatarg bpm) {
     x->tempo = -bpm;  // Negative values signal tempo changes.
 }
@@ -150,6 +155,8 @@ void abl_link_tilde_setup(void) {
                                      sizeof(t_abl_link_tilde), CLASS_DEFAULT, A_GIMME, 0);
     class_addmethod(abl_link_tilde_class, (t_method)abl_link_tilde_dsp,
                     gensym("dsp"), 0);
+    class_addmethod(abl_link_tilde_class, (t_method)abl_link_tilde_enable,
+                    gensym("connect"), A_DEFFLOAT, 0);
     class_addmethod(abl_link_tilde_class, (t_method)abl_link_tilde_set_tempo,
                     gensym("tempo"), A_DEFFLOAT, 0);
     class_addmethod(abl_link_tilde_class, (t_method)abl_link_tilde_set_resolution,
